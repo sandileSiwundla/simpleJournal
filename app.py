@@ -11,8 +11,8 @@ def index():
     entryList.append(entry1)
     entryList.append(entry2)
     entries = [{"title": "...", "content": "..."}]
-    return render_template(entries)
-    
+    return render_template("index.html")
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_entry():
