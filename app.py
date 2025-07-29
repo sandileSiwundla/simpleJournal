@@ -4,13 +4,12 @@ app = Flask(__name__)
 
 entryList = []   
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    entry1 = {"date" : "23/03/2024" }
-    entry2 = {"date" : "24/03/2024"}
-    entryList.append(entry1)
-    entryList.append(entry2)
-    entries = [{"title": "...", "content": "..."}]
+    if request.method == 'POST':
+        userName = request.form.get("username")
+        password = request.form.get("password")
+
     return render_template("index.html")
 
 
@@ -24,4 +23,4 @@ def add_entry():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
