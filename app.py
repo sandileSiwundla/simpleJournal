@@ -35,13 +35,10 @@ def add_entry():
         return f'{date}: {content}'
     return render_template('add.html')
 
-@app.route("/submit", methods=["POST"])
+@app.route("/login", methods=["POST"])
 def submit():
-    print("22")
     username = request.form.get("username")
     password = request.form.get("password")
-    print(username)
-    print(password)
     if not username or not password:
         return "Missing fields", 400
 
