@@ -37,7 +37,8 @@
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="text" id="password" name="password" placeholder="password">
+        <input type="password" id="password" name="password" placeholder="password">
+        <input type="checkbox" onclick="togglePassword()"> Show Password
         <button type="submit">Login</button>
      </form>
       <button id="openModalBtn" type="button">Open Popup</button>
@@ -50,9 +51,10 @@
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="text" id="password" name="password" placeholder="password">
+        <input type="password" id="Setpassword" name="Setpassword" placeholder="password">
+        <input type="checkbox" onclick="togglePassword()"> Show Password
         </label for="confirmPassword">Confirm Password:</label>
-        <input type="text" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
         <button type="submit">Register</button>
      </form>
     </div>
@@ -62,6 +64,15 @@
     const modal = document.getElementById("myModal");
     const openBtn = document.getElementById("openModalBtn");
     const closeBtn = document.getElementById("closeModalBtn");
+
+
+    // Toggle password
+    function togglePassword() {
+    const pwd = document.getElementById("password");
+    const pwd1 = document.getElementById("Setpassword");
+    pwd.type = pwd.type === "password" ? "text" : "password";
+    pwd1.type = pwd1.type === "password" ? "text" : "password";
+  }
 
     openBtn.onclick = () => modal.style.display = "block";
     closeBtn.onclick = () => modal.style.display = "none";
