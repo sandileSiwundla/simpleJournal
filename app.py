@@ -1,8 +1,22 @@
 from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, render_template, redirect, jsonify
+from pymongo import MongoClient
+from werkzeug.security import generate_password_hash
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()  # Load .env file
+
 
 app = Flask(__name__)
 
-entryList = []   
+entryList = []  
+
+# Connect to MongoDB
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client["mydatabase"]
+users_collection = db["users"]
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -21,6 +35,24 @@ def add_entry():
         return f'{date}: {content}'
     return render_template('add.html')
 
+@app.route("/submit", methods=["POST"])
+def submit():
+    print("22")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    print(username)
+    print(password)
+    if not username or not password:
+        return "Missing fields", 400
+
+    hashed_password = generate_password_hash(password)
+
+    users_collection.insert_one({
+        "username": username,
+        "password": hashed_password
+    })
+
+    return "Account created successfully!"
 
 if __name__ == '__main__':
     app.run(debug=True)
