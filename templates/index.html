@@ -37,8 +37,8 @@
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="password">
-        <input type="checkbox" onclick="togglePassword()"> Show Password
+        <input type="password" id="password" class="password-field" placeholder="password">
+        <input type="checkbox" onclick="togglePasswords()"> Show Password
         <button type="submit">Login</button>
      </form>
       <button id="openModalBtn" type="button">Open Popup</button>
@@ -51,10 +51,11 @@
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="password" id="Setpassword" name="Setpassword" placeholder="password">
-        <input type="checkbox" onclick="togglePassword()"> Show Password
+        <input type="password" id="Setpassword" class="password-field" placeholder="password">
+        <input type="checkbox" onclick="togglePasswords()"> Show Password
         </label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password">
+        <input type="password" id="confirmPassword" class="password-field" placeholder="Confirm Password">
+        <input type="checkbox" onclick="togglePasswords()"> Show Password
         <button type="submit">Register</button>
      </form>
     </div>
@@ -67,11 +68,11 @@
 
 
     // Toggle password
-    function togglePassword() {
-    const pwd = document.getElementById("password");
-    const pwd1 = document.getElementById("Setpassword");
-    pwd.type = pwd.type === "password" ? "text" : "password";
-    pwd1.type = pwd1.type === "password" ? "text" : "password";
+    function togglePasswords() {
+    const fields = document.querySelectorAll('.password-field');
+    fields.forEach(field => {
+      field.type = field.type === 'password' ? 'text' : 'password';
+    });
   }
 
     openBtn.onclick = () => modal.style.display = "block";
