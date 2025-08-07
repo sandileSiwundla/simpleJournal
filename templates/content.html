@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Journal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+    }
+    .entry {
+      background-color: white;
+      padding: 15px;
+      margin-top: 20px;
+      border-left: 4px solid #4CAF50;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: gray;
+    }
+    .logout {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/logout" class="logout">Logout</a>
+  <h2>Welcome, {{ username }}</h2>
+
+  {% if message %}
+    <p style="color: green;">{{ message }}</p>
+  {% endif %}
+
+  <form method="POST">
+    <textarea name="entry" rows="10" cols="50" placeholder="Write your journal here..."></textarea><br>
+    <button type="submit">Save Entry</button>
+  </form>
+
+  {% if entries %}
+    <h3>Your Previous Entries</h3>
+    {% for entry in entries %}
+      <div class="entry">
+        <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
+        <p>{{ entry.entry }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No journal entries yet.</p>
+  {% endif %}
+
+</body>
+</html>

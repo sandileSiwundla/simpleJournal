@@ -37,7 +37,7 @@
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="password" id="password" class="password-field" placeholder="password">
+        <input type="password" id="password" name="password" class="password-field" placeholder="password">
         <input type="checkbox" onclick="togglePasswords()"> Show Password
         <button type="submit">Login</button>
      </form>
@@ -47,14 +47,14 @@
     <div class="modal-content">
       <span id="closeModalBtn" class="close">&times;</span>
       <h2>Register</h2>
-      <form method="POST" action="/login" >
+      <form method="POST" action="/register" >
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="username">
         </label for="password">Password:</label>
-        <input type="password" id="Setpassword" class="password-field" placeholder="password">
+        <input type="password" id="Setpassword" name="Setpassword" class="password-field" placeholder="password">
         <input type="checkbox" onclick="togglePasswords()"> Show Password
         </label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" class="password-field" placeholder="Confirm Password">
+        <input type="password" id="confirmPassword" name="confirmPassword" class="password-field" placeholder="Confirm Password">
         <input type="checkbox" onclick="togglePasswords()"> Show Password
         <button type="submit">Register</button>
      </form>
