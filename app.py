@@ -21,12 +21,8 @@ db = client["mydatabase"]
 users_collection = db["users"]
 journal_collection = db["journals"]
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        userName = request.form.get("username")
-        password = request.form.get("password")
-
     return render_template("index.html")
 
 
@@ -38,8 +34,13 @@ def add_entry():
         return f'{date}: {content}'
     return render_template('add.html')
 
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    
+    # renders template after register
+    if request.method == "GET":
+        render_template("index.html")
+
     username = request.form.get("username")
     password = request.form.get("password")
     print(username)
@@ -57,6 +58,8 @@ def login():
     # Check password against stored hash
     if check_password_hash(user["password"], password):
         session["username"] = username
+        username = ""
+        password = ""
         return redirect(url_for("content"))
     else:
         return render_template("index.html", error="Incorrect password.")
@@ -80,7 +83,11 @@ def register():
         "username": username,
         "password": hashed_password
     })
-    return "Account created successfully!"
+    return successfulLogin()
+
+def successfulLogin():
+    # "Account created successfully!"
+    return redirect(url_for("login"))
 
 @app.route("/content", methods=["GET", "POST"])
 def content():
