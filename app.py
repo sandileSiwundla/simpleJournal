@@ -14,6 +14,7 @@ load_dotenv()  # Load .env file
 app = Flask(__name__)
 
 entryList = []  
+app.secret_key = "myverysecretkey123"
 
 # Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -23,6 +24,7 @@ journal_collection = db["journals"]
 
 @app.route('/')
 def index():
+    
     return render_template("index.html")
 
 
@@ -36,7 +38,7 @@ def add_entry():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    
+
     # renders template after register
     if request.method == "GET":
         render_template("index.html")
