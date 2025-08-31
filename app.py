@@ -8,13 +8,12 @@ from flask_session import Session
 
 
 
-load_dotenv()  # Load .env file
-
+load_dotenv() 
 
 app = Flask(__name__)
 
 entryList = []  
-app.secret_key = "myverysecretkey123"
+# app.secret_key = "myverysecretkey123"
 
 # Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -41,7 +40,7 @@ def login():
 
     # renders template after register
     if request.method == "GET":
-        render_template("index.html")
+        return render_template("index.html")
 
     username = request.form.get("username")
     password = request.form.get("password")
@@ -72,6 +71,8 @@ def register():
     username = request.form.get("username")
     password = request.form.get("Setpassword")
     confirmPassword = request.form.get("confirmPassword")
+    print(username)
+    print(password)
 
     if not username or not password or not confirmPassword:
         return "Missing fields", 400
