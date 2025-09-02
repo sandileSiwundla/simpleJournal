@@ -60,6 +60,9 @@
       <div class="entry">
         <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
        <form action="{{ url_for('deleteEntry', entry_id=entry.id) }}" method="POST">
+        <label>
+        <input type="checkbox" name="status" value="true"> Make Entry Public
+      </label>
         <button type="submit" class="delete">Delete</button>
       </form>
         <p style="color: #ffffff; font-size: 18px;">{{ entry.entry }}</p>

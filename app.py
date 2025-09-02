@@ -98,6 +98,13 @@ def logout():
     session.pop("username", None)
     return redirect(url_for("login"))
 
+@app.route("/public", methods=["GET"])
+def publicContent():
+    entries = list(
+        journal_collection.find({"status": True}).sort("timestamp", -1)
+    )
+    pass
+
 @app.route("/content", methods=["GET", "POST"])
 def content():
     if "username" not in session:
@@ -114,7 +121,7 @@ def content():
         if entry:
             journal_entry = {
                 "id": id,
-                "status": status,
+                "status":  True if status == "true" else False,
                 "username": username,
                 "entry": entry,
                 "timestamp": datetime.datetime.now()
