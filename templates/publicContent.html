@@ -43,25 +43,18 @@
 <body>
 
   <a href="/logout" class="logout">Logout</a>
-  <h2>Welcome, {{ username }} whats on your mind today</h2>
+  <h2>What other people are thinking</h2>
 
   {% if message %}
     <p style="color: rgb(7, 226, 7);">{{ message }}</p>
   {% endif %}
 
-  <form method="POST">
-    <textarea name="entry" rows="10" cols="50" placeholder="Write your journal here..." ></textarea><br>
-    <button type="submit">Save Entry</button>
-  </form>
 
   {% if entries %}
     <h3>Your Previous Entries</h3>
     {% for entry in entries %}
       <div class="entry">
         <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
-       <form action="{{ url_for('deleteEntry', entry_id=entry.id) }}" method="POST">
-        <button type="submit" class="delete">Delete</button>
-      </form>
         <p style="color: #ffffff; font-size: 18px;">{{ entry.entry }}</p>
       </div>
     {% endfor %}

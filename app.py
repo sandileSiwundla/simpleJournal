@@ -5,7 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
 from flask_session import Session
-
+import secrets
+import string
 
 
 load_dotenv() 
@@ -13,7 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 
 entryList = []  
-# app.secret_key = "myverysecretkey123"
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Connect to MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
@@ -92,26 +93,56 @@ def successfulLogin():
     # "Account created successfully!"
     return redirect(url_for("login"))
 
+@app.route("/logout")
+def logout():
+    session.pop("username", None)
+    return redirect(url_for("login"))
+
 @app.route("/content", methods=["GET", "POST"])
 def content():
     if "username" not in session:
         return redirect(url_for("login"))
 
     username = session["username"]
+    
+    alphabet = string.ascii_letters + string.digits
+    id = ''.join(secrets.choice(alphabet) for i in range(10)) 
 
     if request.method == "POST":
         entry = request.form.get("entry")
+        status = request.form.get("status")
         if entry:
             journal_entry = {
+                "id": id,
+                "status": status,
                 "username": username,
                 "entry": entry,
-                "timestamp": datetime.now()
+                "timestamp": datetime.datetime.now()
             }
             journal_collection.insert_one(journal_entry)
             message = "Entry saved!"
-            return render_template("content.html", username=username, message=message)
+            # ✅ Fetch all entries for the logged-in user (latest first)
+            entries = list(
+                journal_collection.find({"username": username}).sort("timestamp", -1)
+            )
+            return render_template("content.html", username=username, message=message, entries=entries)
 
-    return render_template("content.html", username=username)
+    # ✅ Fetch all entries for the logged-in user (latest first)
+    entries = list(
+        journal_collection.find({"username": username}).sort("timestamp", -1)
+    )
+
+    return render_template("content.html", username=username, entries=entries)
+
+@app.route("/delete/<entry_id>", methods=["POST"])
+def deleteEntry(entry_id):
+    username = session["username"]
+    journal_collection.delete_one({"id": entry_id})
+    entries = list(
+        journal_collection.find({"username": username}).sort("timestamp", -1)
+    )
+    return render_template("content.html", username=username, entries=entries)
+
 
 
 if __name__ == '__main__':
