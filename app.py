@@ -7,26 +7,49 @@ from dotenv import load_dotenv
 from flask_session import Session
 import secrets
 import string
+from pymongo.errors import ConnectionFailure
 
-
-load_dotenv() 
+# Load environment variables first
+load_dotenv()
 
 app = Flask(__name__)
-
-entryList = []  
 app.secret_key = os.getenv("SECRET_KEY")
 
-# Connect to MongoDB
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client["mydatabase"]
-users_collection = db["users"]
-journal_collection = db["journals"]
+# Configure server-side sessions
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+# Connect to MongoDB with error handling
+try:
+    # Try both SRV and standard connection string
+    mongo_uri = os.getenv("MONGO_URI")
+    client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+    # Force connection to check if it works
+    client.admin.command('ismaster')
+except ConnectionFailure:
+    try:
+        # Fallback to standard connection string if SRV fails
+        standard_uri = os.getenv("MONGO_URI_STANDARD")
+        if standard_uri:
+            client = MongoClient(standard_uri, serverSelectionTimeoutMS=5000)
+            client.admin.command('ismaster')
+    except (ConnectionFailure, Exception):
+        print("Could not connect to MongoDB")
+        client = None
+
+if client:
+    db = client["mydatabase"]
+    users_collection = db["users"]
+    journal_collection = db["journals"]
+else:
+    print("Running without database connection")
 
 @app.route('/')
 def index():
-    
+    if "username" in session:
+        return redirect(url_for("content"))
     return render_template("index.html")
-
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_entry():
@@ -38,48 +61,41 @@ def add_entry():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
-    # renders template after register
     if request.method == "GET":
         return render_template("index.html")
 
     username = request.form.get("username")
     password = request.form.get("password")
-    print(username)
-    print(password)
     
     if not username or not password:
-        return  render_template("index.html", error="Please fill in all fields.")
+        return render_template("index.html", error="Please fill in all fields.")
 
-    #  Look up user
-    user = users_collection.find_one({"username": username})
+    user = users_collection.find_one({"username": username}) if client else None
 
     if not user:
         return render_template("index.html", error="User not found.")
 
-    # Check password against stored hash
     if check_password_hash(user["password"], password):
         session["username"] = username
-        username = ""
-        password = ""
         return redirect(url_for("content"))
     else:
         return render_template("index.html", error="Incorrect password.")
-
 
 @app.route("/register", methods=["POST"])
 def register():
     username = request.form.get("username")
     password = request.form.get("Setpassword")
     confirmPassword = request.form.get("confirmPassword")
-    print(username)
-    print(password)
 
     if not username or not password or not confirmPassword:
         return "Missing fields", 400
     
-    if confirmPassword != password:
+    if password != confirmPassword:
         return "Passwords do not match", 400
+    
+    # Check if user already exists
+    if users_collection.find_one({"username": username}):
+        return "Username already exists", 400
     
     hashed_password = generate_password_hash(password)
 
@@ -87,25 +103,14 @@ def register():
         "username": username,
         "password": hashed_password
     })
-    return successfulLogin()
-
-def successfulLogin():
-    # "Account created successfully!"
-    return redirect(url_for("login"))
+    
+    session["username"] = username
+    return redirect(url_for("content"))
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return redirect(url_for("login"))
-
-@app.route("/public", methods=["GET"])
-def publicContent():
-    username = session["username"]
-    entries = list(
-        journal_collection.find()
-    )
-    return render_template("publicContent.html", username=username, entries=entries)
-
+    return redirect(url_for("index"))
 
 @app.route("/content", methods=["GET", "POST"])
 def content():
@@ -113,49 +118,40 @@ def content():
         return redirect(url_for("login"))
 
     username = session["username"]
-    
-    alphabet = string.ascii_letters + string.digits
-    id = ''.join(secrets.choice(alphabet) for i in range(10)) 
+    message = None
 
-    if request.method == "POST":
+    if request.method == "POST" and client:
         entry = request.form.get("entry")
         status = request.form.get("status")
         if entry:
+            alphabet = string.ascii_letters + string.digits
+            entry_id = ''.join(secrets.choice(alphabet) for i in range(10))
+            
             journal_entry = {
-                "id": id,
-                "status":  True if status == "true" else False,
+                "id": entry_id,
+                "status": status == "true",
                 "username": username,
                 "entry": entry,
                 "timestamp": datetime.datetime.now()
             }
             journal_collection.insert_one(journal_entry)
             message = "Entry saved!"
-            # ✅ Fetch all entries for the logged-in user (latest first)
-            entries = list(
-                journal_collection.find({"username": username}).sort("timestamp", -1)
-            )
-            return render_template("content.html", username=username, message=message, entries=entries)
 
-    # ✅ Fetch all entries for the logged-in user (latest first)
-    entries = list(
-        journal_collection.find({"username": username}).sort("timestamp", -1)
-    )
+    # Fetch entries if database is connected
+    entries = []
+    if client:
+        entries = list(journal_collection.find({"username": username}).sort("timestamp", -1))
 
-    return render_template("content.html", username=username, entries=entries)
+    return render_template("content.html", username=username, message=message, entries=entries)
 
 @app.route("/delete/<entry_id>", methods=["POST"])
 def deleteEntry(entry_id):
+    if "username" not in session or not client:
+        return redirect(url_for("login"))
+        
     username = session["username"]
-    journal_collection.delete_one({"id": entry_id})
-    entries = list(
-        journal_collection.find({"username": username}).sort("timestamp", -1)
-    )
-    return render_template("content.html", username=username, entries=entries)
-
-
+    journal_collection.delete_one({"id": entry_id, "username": username})
+    return redirect(url_for("content"))
 
 if __name__ == '__main__':
     app.run(debug=True)
-    
-from asgiref.wsgi import WsgiToAsgi
-asgi_app = WsgiToAsgi(app)

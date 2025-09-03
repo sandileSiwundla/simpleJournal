@@ -1,6 +1,6 @@
-flask
-pymongo
-python-dotenv
-flask-session
-asgiref
-werkzeug
+Flask==2.3.3
+pymongo==4.5.0
+Werkzeug==2.3.7
+python-dotenv==1.0.0
+Flask-Session==0.5.0
+asgiref==3.7.2
