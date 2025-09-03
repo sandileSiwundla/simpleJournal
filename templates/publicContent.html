@@ -43,6 +43,8 @@
 <body>
 
   <a href="/logout" class="logout">Logout</a>
+  <a href="/content" class="content">Personal Entries</a>
+
   <h2>What other people are thinking</h2>
 
   {% if message %}
@@ -51,7 +53,7 @@
 
 
   {% if entries %}
-    <h3>Your Previous Entries</h3>
+    <h3>Past users entries</h3>
     {% for entry in entries %}
       <div class="entry">
         <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>

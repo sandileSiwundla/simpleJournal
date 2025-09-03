@@ -100,10 +100,12 @@ def logout():
 
 @app.route("/public", methods=["GET"])
 def publicContent():
+    username = session["username"]
     entries = list(
-        journal_collection.find({"status": True}).sort("timestamp", -1)
+        journal_collection.find()
     )
-    pass
+    return render_template("publicContent.html", username=username, entries=entries)
+
 
 @app.route("/content", methods=["GET", "POST"])
 def content():
@@ -154,3 +156,6 @@ def deleteEntry(entry_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+    
+from asgiref.wsgi import WsgiToAsgi
+asgi_app = WsgiToAsgi(app)
