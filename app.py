@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -22,18 +22,15 @@ Session(app)
 
 # Connect to MongoDB with error handling
 try:
-    # Try both SRV and standard connection string
     mongo_uri = os.getenv("MONGO_URI")
     client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
-    # Force connection to check if it works
     client.admin.command('ismaster')
 except ConnectionFailure:
     try:
-        # Fallback to standard connection string if SRV fails
-        standard_uri = os.getenv("MONGO_URI_STANDARD")
-        if standard_uri:
-            client = MongoClient(standard_uri, serverSelectionTimeoutMS=5000)
-            client.admin.command('ismaster')
+        # Standard connection string (non-SRV)
+        standard_uri = "mongodb://sandilemsiwundla_db_user:HnrfllQJsOJxlAMU@cluster0-shard-00-00.93nj6rx.mongodb.net:27017,cluster0-shard-00-01.93nj6rx.mongodb.net:27017,cluster0-shard-00-02.93nj6rx.mongodb.net:27017/?ssl=true&replicaSet=atlas-9vzy71-shard-0&authSource=admin&retryWrites=true&w=majority"
+        client = MongoClient(standard_uri, serverSelectionTimeoutMS=5000)
+        client.admin.command('ismaster')
     except (ConnectionFailure, Exception):
         print("Could not connect to MongoDB")
         client = None
@@ -152,6 +149,8 @@ def deleteEntry(entry_id):
     username = session["username"]
     journal_collection.delete_one({"id": entry_id, "username": username})
     return redirect(url_for("content"))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
