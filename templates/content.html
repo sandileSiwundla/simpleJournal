@@ -1,77 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Your Journal</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-      background-color: #ee4ae6;
-    }
-    h2 {
-      margin-bottom: 10px;
-    }
-    textarea {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      background-color: #218e25;
-
-    }
-    .entry {
-      background-color: rgb(64, 143, 182);
-      padding: 15px;
-      margin-top: 20px;
-      border-left: 4px solid #62aada;
-    }
-    .timestamp {
-      font-size: 16px;
-      color: rgb(245, 244, 244);
-    }
-    .logout {
-      float: right;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Journal</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8E44AD 0%, #3498DB 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #218e25;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1a721d;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: #E74C3C;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #C0392B;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .btn-outline:hover {
+            background-color: white;
+            color: #6a11cb;
+        }
+        
+        .welcome-message {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .welcome-message h2 {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-message p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        .entry-form {
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 150px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+        }
+        
+        .entries-container {
+            padding: 20px;
+        }
+        
+        .entries-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .entries-header h3 {
+            color: #495057;
+        }
+        
+        .entry {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #62aada;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .entry:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .timestamp {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .entry-content {
+            color: #495057;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+        
+        .entry-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .public-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #218e25;
+        }
+        
+        .no-entries {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .no-entries p {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .actions {
+                justify-content: center;
+            }
+            
+            .entry-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .entry-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">{{ username[0]|upper }}</div>
+                <h1>Your Journal</h1>
+            </div>
+            <div class="actions">
+                <a href="/public" class="btn btn-outline">Public Entries</a>
+                <a href="/logout" class="btn btn-secondary">Logout</a>
+            </div>
+        </header>
+        
+        <div class="welcome-message">
+            <h2>Welcome, {{ username }}</h2>
+            <p>What's on your mind today?</p>
+        </div>
+        
+        {% if message %}
+        <div class="message success">
+            {{ message }}
+        </div>
+        {% endif %}
+        
+        <div class="entry-form">
+            <form method="POST">
+                <textarea name="entry" placeholder="Write your journal entry here..."></textarea>
+                <button type="submit" class="btn btn-primary">Save Entry</button>
+            </form>
+        </div>
+        
+        <div class="entries-container">
+            <div class="entries-header">
+                <h3>Your Journal Entries</h3>
+            </div>
+            
+            {% if entries %}
+                {% for entry in entries %}
+                <div class="entry">
+                    <div class="entry-header">
+                        <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
+                    </div>
+                    <div class="entry-content">{{ entry.entry }}</div>
+                    <div class="entry-actions">
+                        <div class="public-toggle">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="status" value="true">
+                                Make Entry Public
+                            </label>
+                        </div>
+                        <form action="{{ url_for('deleteEntry', entry_id=entry.id) }}" method="POST">
+                            <button type="submit" class="btn btn-secondary">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-entries">
+                    <p>No journal entries yet.</p>
+                    <p>Start by writing your first entry above!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 
-  <a href="/logout" class="logout">Logout</a>
-  <a href="/public" class="public">Public Entries</a>
-  <h2>Welcome, {{ username }} whats on your mind today</h2>
-
-  {% if message %}
-    <p style="color: rgb(7, 226, 7);">{{ message }}</p>
-  {% endif %}
-
-  <form method="POST">
-    <textarea name="entry" rows="10" cols="50" placeholder="Write your journal here..." ></textarea><br>
-    <button type="submit">Save Entry</button>
-  </form>
-
-  {% if entries %}
-    <h3>Your Previous Entries</h3>
-    {% for entry in entries %}
-      <div class="entry">
-        <div class="timestamp">{{ entry.timestamp.strftime("%Y-%m-%d %H:%M") }}</div>
-       <form action="{{ url_for('deleteEntry', entry_id=entry.id) }}" method="POST">
-        <label>
-        <input type="checkbox" name="status" value="true"> Make Entry Public
-      </label>
-        <button type="submit" class="delete">Delete</button>
-      </form>
-        <p style="color: #ffffff; font-size: 18px;">{{ entry.entry }}</p>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No journal entries yet.</p>
-  {% endif %}
-
+    <script>
+        // Simple confirmation for delete actions
+        document.querySelectorAll('.btn-secondary').forEach(button => {
+            if (button.textContent === 'Delete') {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to delete this entry?')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
