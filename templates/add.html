@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Journal Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             box-sizing: border-box;
@@ -25,9 +26,11 @@
             background-color: white;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 450px;
+            position: relative;
+            overflow: hidden;
         }
         
         .logo {
@@ -65,13 +68,14 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
         }
         
         input[type="text"]:focus,
         input[type="password"]:focus {
             border-color: #4a6fa5;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
         }
         
         .input-icon {
@@ -95,15 +99,18 @@
         
         .remember-me input {
             margin-right: 8px;
+            accent-color: #4a6fa5;
         }
         
         .forgot-password {
             color: #4a6fa5;
             text-decoration: none;
             font-size: 14px;
+            transition: color 0.3s;
         }
         
         .forgot-password:hover {
+            color: #3a5a80;
             text-decoration: underline;
         }
         
@@ -117,12 +124,51 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
         
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(58, 90, 128, 0.3);
+            box-shadow: 0 7px 20px rgba(58, 90, 128, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
         }
         
         .register-link {
@@ -135,9 +181,11 @@
             color: #4a6fa5;
             text-decoration: none;
             font-weight: 600;
+            transition: color 0.3s;
         }
         
         .register-link a:hover {
+            color: #3a5a80;
             text-decoration: underline;
         }
         
@@ -175,11 +223,57 @@
             background-color: #f5f5f5;
             border: 1px solid #ddd;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s;
         }
         
         .social-btn:hover {
             background-color: #e9e9e9;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4a6fa5;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
@@ -193,14 +287,17 @@
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username</label>
-                <span class="input-icon">👤</span>
+                <span class="input-icon"><i class="fas fa-user"></i></span>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <div class="error-message" id="usernameError">Please enter a valid username</div>
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <span class="input-icon">🔒</span>
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
                 <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span class="password-toggle" id="passwordToggle"><i class="fas fa-eye"></i></span>
+                <div class="error-message" id="passwordError">Password must be at least 6 characters</div>
             </div>
             
             <div class="options">
@@ -211,8 +308,17 @@
                 <a href="#" class="forgot-password">Forgot password?</a>
             </div>
             
-            <button type="submit">Login</button>
+            <button type="submit" id="loginButton">Login</button>
         </form>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p>Logging in...</p>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            Login successful! Redirecting...
+        </div>
         
         <div class="divider">
             <span></span>
@@ -221,9 +327,9 @@
         </div>
         
         <div class="social-login">
-            <div class="social-btn">G</div>
-            <div class="social-btn">f</div>
-            <div class="social-btn">in</div>
+            <div class="social-btn"><i class="fab fa-google"></i></div>
+            <div class="social-btn"><i class="fab fa-facebook-f"></i></div>
+            <div class="social-btn"><i class="fab fa-linkedin-in"></i></div>
         </div>
         
         <div class="register-link">
@@ -232,21 +338,78 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const usernameError = document.getElementById('usernameError');
+            const passwordError = document.getElementById('passwordError');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const loginButton = document.getElementById('loginButton');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const successMessage = document.getElementById('successMessage');
             
-            // Simple validation
-            if (username.trim() === '' || password.trim() === '') {
-                alert('Please fill in all fields');
-                return;
-            }
+            // Toggle password visibility
+            passwordToggle.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    passwordInput.type = 'password';
+                    passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
             
-            // In a real application, you would handle authentication here
-            console.log('Login attempted with:', { username, password, remember });
-            alert('Login successful! (This is a demo)');
+            // Form validation
+            usernameInput.addEventListener('blur', function() {
+                if (usernameInput.value.trim() === '') {
+                    usernameError.style.display = 'block';
+                } else {
+                    usernameError.style.display = 'none';
+                }
+            });
+            
+            passwordInput.addEventListener('blur', function() {
+                if (passwordInput.value.length < 6) {
+                    passwordError.style.display = 'block';
+                } else {
+                    passwordError.style.display = 'none';
+                }
+            });
+            
+            // Form submission
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                if (usernameInput.value.trim() === '') {
+                    usernameError.style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (passwordInput.value.length < 6) {
+                    passwordError.style.display = 'block';
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Show loading indicator
+                    loginButton.disabled = true;
+                    loadingIndicator.style.display = 'block';
+                    
+                    // Simulate API call
+                    setTimeout(function() {
+                        loadingIndicator.style.display = 'none';
+                        successMessage.style.display = 'block';
+                        
+                        // Simulate redirect
+                        setTimeout(function() {
+                            alert('Login successful! Redirecting to journal...');
+                        }, 1500);
+                    }, 2000);
+                }
+            });
         });
     </script>
 </body>
