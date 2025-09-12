@@ -1,12 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Flask App</title>
-     <style>
-      body {
-        background-color: #d86ebd;
+  <title>Flask App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #d86ebd;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
 
-      }
+    h2 {
+      margin-top: 40px;
+    }
+
+    form {
+      margin: 20px auto;
+      max-width: 350px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #ee4ae6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #c43dbf;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -16,14 +60,18 @@
       background-color: rgba(0,0,0,0.5);
       overflow: auto;
     }
+
     .modal-content {
       background-color: #ee4ae6;
-      margin: 15% auto;
+      margin: 10% auto;
       padding: 20px;
       border-radius: 8px;
       max-width: 400px;
+      text-align: left;
+      color: white;
       position: relative;
     }
+
     .close {
       position: absolute;
       right: 15px; top: 10px;
@@ -33,34 +81,41 @@
   </style>
 </head>
 <body>
-    <h2>Welcome to YourJournal</h2>
-    <p>A quick and easy way to Journal</p>
-    <p>To login into your Journal, Enter your Username and Password, To Register click the Register button</p>
-    <form method="POST" action="/login" >
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="username">
-        </label for="password">Password:</label>
-        <input type="password" id="password" name="password" class="password-field" placeholder="password">
-        <input type="checkbox" onclick="togglePasswords()"> Show Password
-        <button type="submit">Login</button>
-     </form>
-      <button id="openModalBtn" type="button">Open Popup</button>
+  <h2>Welcome to YourJournal</h2>
+  <p>A quick and easy way to Journal</p>
 
+  <!-- Login Form -->
+  <form method="POST" action="/login">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" placeholder="Enter username">
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" class="password-field" placeholder="Enter password">
+
+    <input type="checkbox" onclick="togglePasswords()"> Show Password
+    <button type="submit">Login</button>
+  </form>
+
+  <button id="openModalBtn" type="button">Register</button>
+
+  <!-- Register Modal -->
   <div id="myModal" class="modal">
     <div class="modal-content">
       <span id="closeModalBtn" class="close">&times;</span>
-      <h2>Register</h2>
-      <form method="POST" action="/register" >
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" placeholder="username">
-        </label for="password">Password:</label>
-        <input type="password" id="Setpassword" name="Setpassword" class="password-field" placeholder="password">
-        <input type="checkbox" onclick="togglePasswords()"> Show Password
-        </label for="confirmPassword">Confirm Password:</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" class="password-field" placeholder="Confirm Password">
+      <h2>Create Account</h2>
+      <form method="POST" action="/register">
+        <label for="newUsername">Username:</label>
+        <input type="text" id="newUsername" name="username" placeholder="Choose username">
+
+        <label for="Setpassword">Password:</label>
+        <input type="password" id="Setpassword" name="Setpassword" class="password-field" placeholder="Choose password">
+
+        <label for="confirmPassword">Confirm Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" class="password-field" placeholder="Confirm password">
+
         <input type="checkbox" onclick="togglePasswords()"> Show Password
         <button type="submit">Register</button>
-     </form>
+      </form>
     </div>
   </div>
 
@@ -69,19 +124,15 @@
     const openBtn = document.getElementById("openModalBtn");
     const closeBtn = document.getElementById("closeModalBtn");
 
-
-    // Toggle password
     function togglePasswords() {
-    const fields = document.querySelectorAll('.password-field');
-    fields.forEach(field => {
-      field.type = field.type === 'password' ? 'text' : 'password';
-    });
-  }
+      document.querySelectorAll('.password-field').forEach(field => {
+        field.type = field.type === 'password' ? 'text' : 'password';
+      });
+    }
 
     openBtn.onclick = () => modal.style.display = "block";
     closeBtn.onclick = () => modal.style.display = "none";
     window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
   </script>
-    
 </body>
 </html>
